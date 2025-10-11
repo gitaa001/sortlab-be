@@ -56,7 +56,7 @@ export const updateProgress = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ✅ GUNAKAN ARRAY CHECK INSTEAD OF hasOwnProperty
+    // array check for valid topics
     const validTopics = ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort'];
     
     if (!validTopics.includes(topic)) {
@@ -79,7 +79,7 @@ export const updateProgress = async (req, res) => {
       };
     }
 
-    // ✅ DIRECT ASSIGNMENT (skip hasOwnProperty check)
+    // skip hasOwnProperty check
     user.progressPractice[topic] = true;
 
     await user.save();
@@ -97,7 +97,7 @@ export const updateScore = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ✅ GUNAKAN ARRAY CHECK INSTEAD OF hasOwnProperty
+    // array check for valid topics
     const validTopics = ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort'];
     
     if (!validTopics.includes(topic)) {
@@ -122,7 +122,7 @@ export const updateScore = async (req, res) => {
 
     user.totalPoints += points;
 
-    // ✅ DIRECT ASSIGNMENT (skip hasOwnProperty check)
+    //skip hasOwnProperty check
     user.progressCompete[topic].score = points;
     user.progressCompete[topic].done = true;
 
@@ -135,6 +135,42 @@ export const updateScore = async (req, res) => {
     });
   } catch (err) {
     console.error("Failed to update score:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getLeaderboard = async (req, res) => {
+  try {
+    // Fetch all users, sort by totalPoints descending
+    const users = await User.find({})
+      .select('username email totalPoints progressCompete')
+      .sort({ totalPoints: -1 }) // Sort by points descending
+      .limit(100); // Limit to top 100
+
+    // Calculate completed quizzes for each user
+    const leaderboardData = users.map(user => {
+      let completedQuizzes = 0;
+      
+      // Count completed quizzes from progressCompete
+      if (user.progressCompete) {
+        const topics = ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort'];
+        completedQuizzes = topics.filter(topic => 
+          user.progressCompete[topic] && user.progressCompete[topic].done === true
+        ).length;
+      }
+
+      return {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        totalPoints: user.totalPoints || 0,
+        completedQuizzes: completedQuizzes
+      };
+    });
+
+    res.status(200).json(leaderboardData);
+  } catch (err) {
+    console.error("Failed to get leaderboard:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, updateProgress, updateScore } from "../controllers/authController.js";
+import { registerUser, loginUser, updateProgress, updateScore, getLeaderboard } from "../controllers/authController.js";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
@@ -35,5 +35,7 @@ router.get("/me", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error fetching user" });
   }
 });
+
+router.get("/leaderboard", getLeaderboard);
 
 export default router;
