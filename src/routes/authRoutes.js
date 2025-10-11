@@ -12,6 +12,8 @@ router.get("/", (req, res) => {
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/update-progress", updateProgress);
+router.post("/update-score", updateScore);
 
 // Middleware untuk cek token
 function authenticateToken(req, res, next) {
@@ -59,6 +61,5 @@ router.post("/update-score", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 export default router;

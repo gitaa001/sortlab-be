@@ -51,19 +51,53 @@ export const getMe = async (req, res) => {
 
 export const updateProgress = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { topic, status } = req.body;
+    const { userId, topic } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update progress PRACTICE
+    if (user.progressPractice && user.progressPractice.hasOwnProperty(topic)) {
+      user.progressPractice[topic] = true;
+    } else {
+      return res.status(400).json({ message: "Invalid topic name" });
+    }
+
+    await user.save();
+    res.json({ progressPractice: user.progressPractice });
+  } catch (err) {
+    console.error("Failed to update progress:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateScore = async (req, res) => {
+  try {
+    const { userId, points, topic } = req.body;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // update progress
-    user.progress[topic] = status;
+    // Update total points
+    user.totalPoints += points;
+
+    // Update progressCompete sesuai topik
+    if (user.progressCompete && user.progressCompete.hasOwnProperty(topic)) {
+      user.progressCompete[topic].score = points;
+      user.progressCompete[topic].done = true;
+    } else {
+      return res.status(400).json({ message: "Invalid topic name" });
+    }
+
     await user.save();
 
-    res.json({ message: "Progress updated", progress: user.progress });
+    res.status(200).json({
+      message: "Score updated successfully",
+      totalPoints: user.totalPoints,
+      progressCompete: user.progressCompete,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Failed to update score:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
