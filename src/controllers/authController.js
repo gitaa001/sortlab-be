@@ -56,11 +56,27 @@ export const updateProgress = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Update progress PRACTICE
+    if (!user.progressPractice) {
+      console.log('🔧 Initializing progressPractice...');
+      user.progressPractice = {
+        bubbleSort: false,
+        selectionSort: false,
+        insertionSort: false,
+        mergeSort: false,
+      };
+    }
+
     if (user.progressPractice && user.progressPractice.hasOwnProperty(topic)) {
       user.progressPractice[topic] = true;
     } else {
-      return res.status(400).json({ message: "Invalid topic name" });
+      return res.status(400).json({ 
+        message: "Invalid topic name",
+        debug: {
+          topic: topic,
+          progressPractice: user.progressPractice,
+          validTopics: ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort']
+        }
+      });
     }
 
     await user.save();
@@ -74,19 +90,48 @@ export const updateProgress = async (req, res) => {
 export const updateScore = async (req, res) => {
   try {
     const { userId, points, topic } = req.body;
+    
+    console.log('=== DEBUG updateScore ===');
+    console.log('userId:', userId);
+    console.log('points:', points);
+    console.log('topic:', topic);
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Update total points
+    console.log('user.progressCompete before init:', user.progressCompete);
+
+    if (!user.progressCompete) {
+      console.log('🔧 Initializing progressCompete...');
+      user.progressCompete = {
+        bubbleSort: { score: null, done: false },
+        selectionSort: { score: null, done: false },
+        insertionSort: { score: null, done: false },
+        mergeSort: { score: null, done: false },
+      };
+    }
+
+    console.log('user.progressCompete after init:', user.progressCompete);
+    console.log('user.progressCompete keys:', Object.keys(user.progressCompete || {}));
+    console.log('hasOwnProperty check:', user.progressCompete?.hasOwnProperty(topic));
+
     user.totalPoints += points;
 
-    // Update progressCompete sesuai topik
     if (user.progressCompete && user.progressCompete.hasOwnProperty(topic)) {
       user.progressCompete[topic].score = points;
       user.progressCompete[topic].done = true;
+      
+      console.log('✅ Updated progressCompete for topic:', topic);
     } else {
-      return res.status(400).json({ message: "Invalid topic name" });
+      console.log('❌ Invalid topic or progressCompete not initialized');
+      return res.status(400).json({ 
+        message: "Invalid topic name",
+        debug: {
+          topic: topic,
+          progressCompete: user.progressCompete,
+          validTopics: ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort']
+        }
+      });
     }
 
     await user.save();

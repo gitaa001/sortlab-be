@@ -1,21 +1,17 @@
 import express from "express";
-import { registerUser, loginUser } from "../controllers/authController.js";
+import { registerUser, loginUser, updateProgress, updateScore } from "../controllers/authController.js";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { updateProgress, updateScore } from "../controllers/authController.js";
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send("Auth route is working"); //testing purpose
+  res.send("Auth route is working");
 });
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/update-progress", updateProgress);
-router.post("/update-score", updateScore);
 
-// Middleware untuk cek token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -28,37 +24,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Endpoint GET /auth/me → untuk ambil data user yang sedang login
+router.post("/update-progress", authenticateToken, updateProgress);
+router.post("/update-score", authenticateToken, updateScore);
+
 router.get("/me", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: "Error fetching user" });
-  }
-});
-
-router.put("/progress", authenticateToken, updateProgress);
-
-// Endpoint untuk update skor user
-router.post("/update-score", authenticateToken, async (req, res) => {
-  const { userId, points } = req.body;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // misal kamu tambahkan field totalPoints di schema user
-    user.totalPoints = (user.totalPoints || 0) + points;
-    await user.save();
-
-    res.status(200).json({
-      message: "Score updated successfully",
-      totalPoints: user.totalPoints,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
   }
 });
 
