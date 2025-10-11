@@ -2,7 +2,7 @@ import express from "express";
 import { registerUser, loginUser } from "../controllers/authController.js";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { updateProgress } from "../controllers/authController.js";
+import { updateProgress, updateScore } from "../controllers/authController.js";
 
 const router = express.Router();
 
