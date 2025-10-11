@@ -56,6 +56,19 @@ export const updateProgress = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    // ✅ GUNAKAN ARRAY CHECK INSTEAD OF hasOwnProperty
+    const validTopics = ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort'];
+    
+    if (!validTopics.includes(topic)) {
+      return res.status(400).json({ 
+        message: "Invalid topic name",
+        debug: {
+          topic: topic,
+          validTopics: validTopics
+        }
+      });
+    }
+
     if (!user.progressPractice) {
       console.log('🔧 Initializing progressPractice...');
       user.progressPractice = {
@@ -66,18 +79,8 @@ export const updateProgress = async (req, res) => {
       };
     }
 
-    if (user.progressPractice && user.progressPractice.hasOwnProperty(topic)) {
-      user.progressPractice[topic] = true;
-    } else {
-      return res.status(400).json({ 
-        message: "Invalid topic name",
-        debug: {
-          topic: topic,
-          progressPractice: user.progressPractice,
-          validTopics: ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort']
-        }
-      });
-    }
+    // ✅ DIRECT ASSIGNMENT (skip hasOwnProperty check)
+    user.progressPractice[topic] = true;
 
     await user.save();
     res.json({ progressPractice: user.progressPractice });
@@ -91,15 +94,21 @@ export const updateScore = async (req, res) => {
   try {
     const { userId, points, topic } = req.body;
     
-    console.log('=== DEBUG updateScore ===');
-    console.log('userId:', userId);
-    console.log('points:', points);
-    console.log('topic:', topic);
-
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    console.log('user.progressCompete before init:', user.progressCompete);
+    // ✅ GUNAKAN ARRAY CHECK INSTEAD OF hasOwnProperty
+    const validTopics = ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort'];
+    
+    if (!validTopics.includes(topic)) {
+      return res.status(400).json({ 
+        message: "Invalid topic name",
+        debug: {
+          topic: topic,
+          validTopics: validTopics
+        }
+      });
+    }
 
     if (!user.progressCompete) {
       console.log('🔧 Initializing progressCompete...');
@@ -111,28 +120,11 @@ export const updateScore = async (req, res) => {
       };
     }
 
-    console.log('user.progressCompete after init:', user.progressCompete);
-    console.log('user.progressCompete keys:', Object.keys(user.progressCompete || {}));
-    console.log('hasOwnProperty check:', user.progressCompete?.hasOwnProperty(topic));
-
     user.totalPoints += points;
 
-    if (user.progressCompete && user.progressCompete.hasOwnProperty(topic)) {
-      user.progressCompete[topic].score = points;
-      user.progressCompete[topic].done = true;
-      
-      console.log('✅ Updated progressCompete for topic:', topic);
-    } else {
-      console.log('❌ Invalid topic or progressCompete not initialized');
-      return res.status(400).json({ 
-        message: "Invalid topic name",
-        debug: {
-          topic: topic,
-          progressCompete: user.progressCompete,
-          validTopics: ['bubbleSort', 'selectionSort', 'insertionSort', 'mergeSort']
-        }
-      });
-    }
+    // ✅ DIRECT ASSIGNMENT (skip hasOwnProperty check)
+    user.progressCompete[topic].score = points;
+    user.progressCompete[topic].done = true;
 
     await user.save();
 
