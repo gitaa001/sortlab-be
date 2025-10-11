@@ -41,10 +41,27 @@ export const loginUser = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    // req.user.id berasal dari middleware authenticateToken nanti
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { topic, status } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // update progress
+    user.progress[topic] = status;
+    await user.save();
+
+    res.json({ message: "Progress updated", progress: user.progress });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

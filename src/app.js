@@ -22,7 +22,7 @@ app.use("/api/auth", authRoutes);
 
 // Root route (cek server)
 app.get("/", (req, res) => {
-  res.send("🚀 Backend SortLab is running and connected!");
+  res.send("Backend SortLab is running and connected!");
 });
 
 // Turn on the server
