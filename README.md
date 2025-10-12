@@ -15,13 +15,11 @@ Techstacks:
 - Password terenkripsi dengan **bcrypt**.
 - Setiap sesi dilindungi dengan **JWT token**.
 - Endpoint `/api/auth/me` untuk mengambil data user yang sedang login.
-- 
+  
 ### 📈 Progress Tracking
 Dua tipe progress disimpan dalam database:
-#### 1️⃣ Practice Progress
-Mencatat apakah user telah menyelesaikan materi
-#### 2️⃣ Compete Progress
-Mencatat apakah user telah mengerjakan kuis
+1. Practice Progress: mencatat apakah user telah menyelesaikan materi
+2. Compete Progress: mencatat apakah user telah mengerjakan kuis
 
 ### 🏆 Sistem Poin dan Leaderboard
 User mendapatkan poin berdasarkan performa di mode Compete. Total poin terakumulai disimpan di field totalPoints dan ditampilkan di Leaderboard.
