@@ -145,7 +145,7 @@ export const getLeaderboard = async (req, res) => {
     const users = await User.find({})
       .select('username email totalPoints progressCompete')
       .sort({ totalPoints: -1 }) // Sort by points descending
-      .limit(100); // Limit to top 100
+      .limit(20); // Limit to top 20
 
     // Calculate completed quizzes for each user
     const leaderboardData = users.map(user => {
