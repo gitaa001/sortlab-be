@@ -81,9 +81,12 @@ export const updateProgress = async (req, res) => {
 
     // skip hasOwnProperty check
     user.progressPractice[topic] = true;
+    
+    // Also update latest course
+    user.latestCourse = topic;
 
     await user.save();
-    res.json({ progressPractice: user.progressPractice });
+    res.json({ progressPractice: user.progressPractice, latestCourse: user.latestCourse });
   } catch (err) {
     console.error("Failed to update progress:", err);
     res.status(500).json({ message: "Server error" });

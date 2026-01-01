@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     totalPoints: { type: Number, default: 0 },
+    latestCourse: { type: String, default: null }, // Track last opened course
 
     progressPractice: { type: progressPracticeSchema, default: () => ({}) },
     progressCompete: { type: progressCompeteSchema, default: () => ({}) },
